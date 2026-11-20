@@ -1,0 +1,120 @@
+/* Hold to Tip — github.com/veraetogrex-portfolio · zero dependencies
+   A wide amber key under a finished ride: hold it and the tip grows from $0 to $5, let go and the amount stays.
+   The filled part becomes the locked tip, the rest of the key becomes a separate Confirm. */
+:root {
+  --room: #07080c; --panel: #0e1016; --tile: #1c1915;
+  --text: #f3efe8; --text-2: #bdb6aa; --text-3: #958d82; --text-off: #6e675e;   /* warm whites: a car at night, not screen blue */
+  --line: rgba(255, 240, 220, .08);
+  /* the key: dark roast at rest, crema where it is held; every cap has a face and a side 14px below it */
+  --roast: #33240f; --roast-side: #1a1208; --roast-ink: #f4b65a;
+  --crema: #f0a63a; --crema-side: #9a6416; --crema-ink: #22160a;
+  --linen: #f1e9dc; --linen-side: #b4a893; --linen-ink: #1b1712;   /* Confirm: napkin linen, so amber only ever means "tip" */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; overflow: hidden; background: var(--room); color: var(--text); font: 16px/1.4 var(--font); }
+p, h1, ul, dl, dd { margin: 0; padding: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--crema); outline-offset: 6px; }
+
+.ht { position: relative; width: 1360px; height: 800px; border-radius: 36px; overflow: hidden; user-select: none; -webkit-user-select: none;
+  background: var(--panel); box-shadow: 0 0 0 1px var(--line) inset, 0 1px 0 rgba(255, 255, 255, .06) inset, 0 80px 140px -50px rgba(0, 0, 0, .8); }
+@media (max-width: 1400px) { .ht { zoom: .8; } }
+@media (max-width: 1100px) { .ht { zoom: .6; } }
+@media (max-width: 820px)  { .ht { zoom: .4; } }
+@media (max-width: 560px)  { .ht { zoom: .27; } }
+
+.ht-top { position: absolute; left: 72px; right: 72px; top: 52px; display: flex; align-items: baseline; justify-content: space-between; }
+.ht-brand { display: flex; align-items: baseline; gap: 14px; }
+.ht-brand b { font: 800 24px var(--font); letter-spacing: .04em; }
+.ht-brand span, .ht-order { font: 600 22px var(--font); color: var(--text-3); }
+
+/* ── the order: one line across the top, the driver and the route ── */
+.ht-trip { position: absolute; left: 72px; right: 72px; top: 108px; height: 92px; display: flex; align-items: center; gap: 24px; padding-bottom: 0; }
+.ht-trip::after { content: ""; position: absolute; left: 0; right: 0; bottom: -28px; border-top: 1px solid var(--line); }
+.ht-ava { flex: none; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--tile); color: var(--text-2);
+  font: 700 30px var(--font); letter-spacing: .01em; box-shadow: 0 0 0 1px var(--line) inset; }
+.ht-who, .ht-route { display: flex; flex-direction: column; white-space: nowrap; }
+.ht-who { flex: 1; min-width: 0; }
+.ht-who b { font: 700 40px/1.15 var(--font); letter-spacing: -.02em; }
+.ht-who span, .ht-route span { font: 500 24px/1.35 var(--font); color: var(--text-3); }
+.ht-route { position: relative; align-items: flex-end; padding-left: 48px; }
+.ht-route b { font: 600 30px/1.2 var(--font); color: var(--text-2); }
+.ht-route svg { position: absolute; left: 0; top: 4px; width: 34px; height: 34px; fill: none; stroke: var(--text-3); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── the tip: the main object, full width ── */
+.ht-tip { position: absolute; left: 72px; top: 256px; width: 1216px; }
+.ht-tip-h { display: flex; justify-content: space-between; align-items: baseline; font: 600 30px var(--font); color: var(--text-2); }
+.ht-max { font: 600 26px var(--font); color: var(--text-3); }
+.ht-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; }
+.ht-read { font: 700 164px/1 var(--font); letter-spacing: -.045em; font-variant-numeric: tabular-nums; color: var(--text-off); transition: color .2s; }
+.ht.has-tip .ht-read { color: var(--text); }
+.ht-sum { width: 360px; padding-bottom: 0; }
+.ht-sum div { display: flex; justify-content: space-between; align-items: baseline; height: 36px; }
+.ht-sum dt { font: 500 24px var(--font); color: var(--text-3); }
+.ht-sum dd { margin: 0; font: 600 24px var(--font); font-variant-numeric: tabular-nums; color: var(--text-2); }
+.ht-sum .ht-total { height: 76px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); align-items: center; }
+.ht-total dt { font: 600 30px var(--font); color: var(--text-2); }
+.ht-total dd { font: 700 56px var(--font); letter-spacing: -.025em; color: var(--text); }   /* the one number besides the tip that must read on a phone */
+
+/* W = 1216, face 150 + side 16; caps are clipped from the sides by script.js (clip-path), never resized */
+.ht-keys { position: relative; margin-top: 30px; width: 1216px; height: 166px; }
+.ht-key { position: absolute; inset: 0; border-radius: 28px; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.ht-cap { position: absolute; inset: 0; pointer-events: none; }
+.ht-side, .ht-face { position: absolute; left: 0; width: 1216px; height: 150px; border-radius: 28px; }
+.ht-side { top: 16px; }
+.ht-face { top: 0; overflow: hidden; box-shadow: 0 1px 0 rgba(255, 255, 255, .14) inset; transition: transform .16s cubic-bezier(.34, 1.4, .64, 1); }
+.ht.is-down .ht-face { transform: translateY(14px); transition-duration: .09s; transition-timing-function: cubic-bezier(.23, 1, .32, 1); }
+.ht-cap--base .ht-side { background: var(--roast-side); }
+.ht-cap--base .ht-face { background: var(--roast); color: var(--roast-ink); }
+.ht-cap--fill .ht-side { background: var(--crema-side); }
+.ht-cap--fill .ht-face { background: var(--crema); color: var(--crema-ink); }
+.ht-cap--ok { opacity: 0; }
+.ht-cap--ok .ht-side { background: var(--linen-side); }
+.ht-cap--ok .ht-face { background: var(--linen); }
+
+/* $1 marks along the top and bottom edge of the key: the scale is on the button itself */
+.ht-ticks { position: absolute; inset: 0; }
+.ht-ticks i { position: absolute; width: 3px; height: 18px; border-radius: 2px; background: currentColor; opacity: .38; }
+.ht-ticks i:nth-child(odd) { top: 14px; } .ht-ticks i:nth-child(even) { bottom: 14px; }
+
+.ht-lbl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font: 700 38px var(--font); letter-spacing: -.01em; white-space: nowrap; }
+.ht-lbl svg, .ht-chip svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ht-chip { position: absolute; left: 40px; top: 0; height: 150px; display: flex; align-items: center; gap: 14px; opacity: 0; white-space: nowrap; }
+.ht-chip-v { font: 700 54px var(--font); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+
+/* where the key is being held: a pressed dent that stays under the pointer until it lets go */
+.ht-dent { position: absolute; left: 0; top: 0; width: 124px; height: 124px; margin: -62px 0 0 -62px; border-radius: 50%; pointer-events: none;
+  border: 3px solid rgba(255, 244, 225, .7); background: rgba(26, 16, 4, .22); opacity: 0; transform: scale(.6);
+  transition: opacity .14s, transform .18s cubic-bezier(.23, 1, .32, 1); }
+.ht.is-down .ht-dent { opacity: 1; transform: scale(1); }
+
+.ht-confirm, .ht-clear { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; }
+.ht-confirm { width: 1216px; height: 150px; border-radius: 28px; color: var(--linen-ink); font: 700 34px var(--font); letter-spacing: -.01em; }
+.ht-confirm-t { position: absolute; left: 0; top: 0; height: 150px; display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.ht-confirm-t svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.ht-clear { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: var(--crema-ink); background: rgba(34, 22, 10, .16); }
+.ht-clear svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; }
+.ht-clear:hover { background: rgba(34, 22, 10, .26); }
+.ht.is-locked .ht-confirm, .ht.is-locked .ht-clear { pointer-events: auto; }
+.ht-clear svg { transition: transform .12s; } .ht-clear:active svg { transform: scale(.82); }
+
+.ht-scale { position: relative; height: 48px; margin-top: 12px; }
+.ht-scale > * { position: absolute; top: 0; height: 48px; min-width: 48px; padding: 0 6px; display: grid; place-items: center; transform: translateX(-50%);
+  font: 600 26px var(--font); font-variant-numeric: tabular-nums; color: var(--text-3); border-radius: 12px; transition: color .15s; }
+.ht-scale > :nth-child(1) { left: 0; transform: none; padding-left: 0; }
+.ht-scale > :nth-child(2) { left: 20%; } .ht-scale > :nth-child(3) { left: 40%; } .ht-scale > :nth-child(4) { left: 60%; }
+.ht-scale > :nth-child(5) { left: 80%; } .ht-scale > :nth-child(6) { left: 100%; }
+.ht-scale > :last-child { transform: translateX(-100%); padding-right: 0; }
+.ht-scale button:hover, .ht-scale button[aria-pressed="true"] { color: var(--text); }
+/* once a tip is locked the ruler steps back: only the chosen mark stays bright, the rest stay tappable */
+.ht-scale > * { transition: color .15s, opacity .2s; }
+.ht.is-locked .ht-scale > :not([aria-pressed="true"]) { color: var(--text-off); }   /* 3.4:1 on the panel: quieter, still readable */
+.ht.is-locked .ht-scale > button:hover, .ht.is-locked .ht-scale > button:focus-visible { color: var(--text); }
+.ht-hint { margin-top: 14px; font: 500 24px var(--font); color: var(--text-3); white-space: nowrap; }
+.ht-hint.is-warn { color: var(--roast-ink); }
+
+.ht.is-reset, .ht.is-reset * { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .ht-face, .ht-dent, .ht-read { transition-duration: 1ms !important; }
+}
